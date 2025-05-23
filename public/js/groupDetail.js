@@ -37,15 +37,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   saveBtn.addEventListener('click', async () => {
     const name  = nameInput.value.trim();
     const score = scoreInput.value.trim();
-
-    if (!name) {
-      alert('Group name cannot be empty');
-      return;
-    }
-
+    if (!name) { alert('Group name cannot be empty'); return; }
     saveBtn.disabled = true;
     showStatus('Saving...', 'info');
-
     try {
       const res = await fetch(`/api/groups/${groupId}`, {
         method: 'PUT',
@@ -66,8 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusBox.textContent = msg;
     statusBox.className = '';
     statusBox.classList.add('mt-2', 'text-sm', 'text-center');
-    if (type === 'error') statusBox.classList.add('text-red-600');
-    else                  statusBox.classList.add('text-gray-600');
+    statusBox.classList.add(type === 'error' ? 'text-red-600' : 'text-gray-600');
   }
 
   loadGroup();
@@ -90,6 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let html5QrCode = null;
   let lastResult  = '';
   let overlayEl   = null;
+  let freezeCanvas = null;
 
   async function loadStudents() {
     try {
@@ -114,13 +108,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     qrStatus.textContent = '';
     resetScanBtn.classList.add('hidden');
     lastResult = '';
-
+    clearReader();
     // enforce square mask
     qrReaderElem.style.width   = '250px';
     qrReaderElem.style.height  = '250px';
     qrReaderElem.style.overflow = 'hidden';
     qrReaderElem.style.position = 'relative';
-
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     startScanner();
@@ -131,6 +124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     modal.classList.remove('flex');
     await stopScanner();
     removeOverlay();
+    clearReader();
   }
   closeModalBtn.addEventListener('click', closeModalFn);
   cancelBtn.addEventListener('click', closeModalFn);
@@ -141,8 +135,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (!window.isSecureContext && !isLocalhost) {
         throw new Error('Camera access requires HTTPS or localhost.');
       }
-
-      // prefer wide camera: try constraint; fallback to default
+      // prefer wide camera
       try {
         await navigator.mediaDevices.getUserMedia({
           video: { facingMode: 'environment', width: { ideal: 1280 } }
@@ -150,15 +143,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       } catch {
         await navigator.mediaDevices.getUserMedia({ video: true });
       }
-
       if (typeof Html5Qrcode === 'undefined') {
         throw new Error('Html5Qrcode library not found.');
       }
-
       if (html5QrCode) {
         await stopScanner();
       }
-
       html5QrCode = new Html5Qrcode('qr-reader');
       await html5QrCode.start(
         { facingMode: 'environment' },
@@ -172,39 +162,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Called when a QR is successfully decoded
   async function onScanSuccess(decodedText) {
     lastResult = decodedText;
     qrInput.value = decodedText;
     qrStatus.textContent = `QR scanned: ${decodedText}`;
     resetScanBtn.classList.remove('hidden');
-
-    // stop & pause video, but do not clear element
-    if (html5QrCode) {
-      try { await html5QrCode.stop(); } catch {}
-    }
-    // pause underlying video element
+    // grab video frame & freeze
     const vid = qrReaderElem.querySelector('video');
-    if (vid) vid.pause();
-
-    // add blur filter
-    qrReaderElem.style.filter = 'blur(4px)';
-
-    // add overlay prompt
-    addOverlay();
+    if (vid) {
+      // create canvas if not exists
+      freezeCanvas = document.createElement('canvas');
+      freezeCanvas.width  = vid.videoWidth;
+      freezeCanvas.height = vid.videoHeight;
+      const ctx = freezeCanvas.getContext('2d');
+      ctx.drawImage(vid, 0, 0);
+      // style canvas
+      freezeCanvas.style.width  = '250px';
+      freezeCanvas.style.height = '250px';
+      freezeCanvas.style.filter = 'blur(4px)';
+      freezeCanvas.style.position = 'absolute';
+      freezeCanvas.style.top = '0';
+      freezeCanvas.style.left = '0';
+      clearReader();               // remove video/video wrapper
+      qrReaderElem.appendChild(freezeCanvas);
+    }
+    await html5QrCode.stop();     // stop QR scanning
+    addOverlay();                  // show "Tap to rescan"
   }
 
-  // stopScanner: full stop & clear
+  // full stop & clear
   async function stopScanner() {
     if (!html5QrCode) return;
-    try { await html5QrCode.stop(); } catch (e) { console.warn(e); }
-    try { html5QrCode.clear(); } catch (e) { console.warn(e); }
+    try { await html5QrCode.stop(); } catch {}
+    try { html5QrCode.clear(); } catch {}
     html5QrCode = null;
-    removeOverlay();
-    qrReaderElem.style.filter = '';
   }
 
-  // create and show overlay with "Tap to rescan"
+  function clearReader() {
+    // remove all children (video or canvas)
+    while (qrReaderElem.firstChild) {
+      qrReaderElem.removeChild(qrReaderElem.firstChild);
+    }
+  }
+
   function addOverlay() {
     removeOverlay();
     overlayEl = document.createElement('div');
@@ -216,7 +216,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       justifyContent: 'center',
       alignItems: 'center',
       color: '#fff',
-      background: 'rgba(0,0,0,0.4)',
       fontSize: '16px',
       cursor: 'pointer',
       userSelect: 'none'
@@ -224,13 +223,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     overlayEl.innerText = 'Tap to rescan';
     qrReaderElem.appendChild(overlayEl);
     overlayEl.addEventListener('click', () => {
-      // on tap, remove filter & overlay, reset state and restart
-      qrReaderElem.style.filter = '';
-      lastResult = '';
-      qrInput.value = '';
       qrStatus.textContent = '';
       resetScanBtn.classList.add('hidden');
-      stopScanner().then(startScanner);
+      lastResult = '';
+      qrInput.value = '';
+      removeOverlay();
+      if (freezeCanvas) {
+        freezeCanvas.remove();
+        freezeCanvas = null;
+      }
+      startScanner();
     });
   }
 
@@ -246,13 +248,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     resetScanBtn.classList.add('hidden');
     lastResult = '';
     qrInput.value = '';
+    removeOverlay();
+    if (freezeCanvas) {
+      freezeCanvas.remove();
+      freezeCanvas = null;
+    }
     stopScanner().then(startScanner);
   });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (formError) formError.textContent = '';
-
     if (!lastResult) {
       if (formError) formError.textContent = 'Please scan the QR code first.';
       return;
