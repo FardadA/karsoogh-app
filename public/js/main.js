@@ -1,4 +1,3 @@
-// public/js/main.js
 import { renderDashboard } from './dashboard.js';
 import { renderGroups }    from './groups.js';
 import { renderScan }      from './scan.js';
@@ -19,43 +18,42 @@ const userInitialsEl = document.getElementById('user-initials');
 async function loadUser() {
   try {
     const res = await fetch('/api/me');
-    if (!res.ok) throw new Error(`Status ${res.status}`);
-    const { user } = await res.json();
-    const { firstName = '', lastName = '' } = user;
-    // نمایش نام
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const { firstName = '', lastName = '' } = data?.user || {};
+
     profileNameEl.textContent = `${firstName} ${lastName}`.trim() || 'کاربر';
-    // آواتار: حروف اول
-    userInitialsEl.textContent = (
-      (firstName[0] || '') + (lastName[0] || '')
-    ).toUpperCase();
+    userInitialsEl.textContent = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase();
   } catch (err) {
-    console.error('loadUser error:', err);
-    profileNameEl.textContent  = 'کاربر';
+    console.error('خطا در بارگذاری اطلاعات کاربر:', err);
+    profileNameEl.textContent = 'کاربر';
     userInitialsEl.textContent = '';
   }
 }
 
 /**
- * مدیریت باز/بسته شدن سایدبار و اورلی
+ * مدیریت باز/بسته شدن سایدبار
  */
 function openSidebar() {
-  sidebar.classList.add('open');
-  overlay.classList.add('open');
-  toggleBtn.classList.add('active');
+  sidebar?.classList.add('open');
+  overlay?.classList.add('open');
+  toggleBtn?.classList.add('active');
 }
 
 function closeSidebar() {
-  sidebar.classList.remove('open');
-  overlay.classList.remove('open');
-  toggleBtn.classList.remove('active');
+  sidebar?.classList.remove('open');
+  overlay?.classList.remove('open');
+  toggleBtn?.classList.remove('active');
 }
 
-toggleBtn.addEventListener('click', () => {
-  sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+toggleBtn?.addEventListener('click', () => {
+  sidebar?.classList.contains('open') ? closeSidebar() : openSidebar();
 });
-overlay.addEventListener('click', closeSidebar);
-main.addEventListener('click', e => {
-  if (!sidebar.contains(e.target)) closeSidebar();
+
+overlay?.addEventListener('click', closeSidebar);
+
+main?.addEventListener('click', e => {
+  if (!sidebar?.contains(e.target)) closeSidebar();
 });
 
 /**
@@ -66,30 +64,31 @@ const sections = {
   groups:    renderGroups(),
   scan:      renderScan()
 };
+
 Object.values(sections).forEach(sec => {
   sec.classList.add('section');
-  main.appendChild(sec);
+  main?.appendChild(sec);
 });
 
 function activateSection(key) {
   if (!sections[key]) return;
   Object.values(sections).forEach(s => s.classList.remove('active'));
   navItems.forEach(i => i.classList.remove('bg-gray-700'));
+
   sections[key].classList.add('active');
   document
     .querySelector(`#sidebar .nav-item[data-section="${key}"]`)
     ?.classList.add('bg-gray-700');
-  localStorage.setItem('activeSection', key); // ذخیره آخرین بخش
+
+  localStorage.setItem('activeSection', key);
   closeSidebar();
 
-  // اگر در آدرس section هست، حذفش کن
   const url = new URL(window.location.href);
   if (url.searchParams.has('section')) {
     url.searchParams.delete('section');
     history.replaceState({}, '', url.toString());
   }
 }
-
 
 navItems.forEach(item => {
   item.addEventListener('click', () => activateSection(item.dataset.section));
@@ -98,16 +97,12 @@ navItems.forEach(item => {
 /**
  * منطق خروج از حساب
  */
-logoutBtn.addEventListener('click', () => {
-  // مستقیم به روت خروج می‌رویم
+logoutBtn?.addEventListener('click', () => {
   window.location.href = '/logout';
 });
 
-// مقداردهی اولیه: از URL → بعد از localStorage → پیش‌فرض
+// مقداردهی اولیه
 loadUser();
 const urlParams = new URLSearchParams(window.location.search);
-const initialSection =
-  urlParams.get('section') ||
-  localStorage.getItem('activeSection') ||
-  'dashboard';
+const initialSection = urlParams.get('section') || localStorage.getItem('activeSection') || 'dashboard';
 activateSection(initialSection);
