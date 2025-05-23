@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ویرایش گروه</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-primary text-primary min-h-screen overflow-x-hidden">
+  <!-- هدر و سایدبار را مثل index.html وارد کنید -->
+  <div id="wrapper"></div>
+
+  <!-- محتوا -->
+  <main class="container mx-auto px-4 py-6 pt-16">
+    <button id="back-btn" class="flex items-center mb-4 hover:text-accent-1 transition">
+      <i class="fas fa-arrow-left ml-2"></i> بازگشت به لیست گروه‌ها
+    </button>
+    <h2 class="text-2xl font-semibold mb-4">ویرایش گروه</h2>
+    <div class="mb-4">
+      <label class="block mb-1">نام گروه:</label>
+      <input id="edit-name" type="text" class="w-full p-2 rounded bg-secondary text-primary border border-gray-600" />
+    </div>
+    <div class="mb-6">
+      <label class="block mb-1">امتیاز:</label>
+      <input id="edit-score" type="number" class="w-full p-2 rounded bg-secondary text-primary border border-gray-600" />
+    </div>
+    <button id="save-btn" class="px-6 py-2 bg-accent-2 rounded hover:bg-green-400 transition">ثبت تغییرات</button>
+  </main>
+
+  <script type="module" src="js/groupDetail.js"></script>
+  <script type="module" src="js/menu.js"></script>
+</body>
+</html>

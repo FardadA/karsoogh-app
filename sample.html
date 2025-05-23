@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyTrack | Minimal Study Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --accent-1: #a5b4fc;
+            --accent-2: #86efac;
+            --accent-3: #fca5a5;
+            --accent-4: #fcd34d;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(165, 180, 252, 0.05) 0%, rgba(165, 180, 252, 0.05) 90%),
+                radial-gradient(circle at 90% 80%, rgba(134, 239, 172, 0.05) 0%, rgba(134, 239, 172, 0.05) 90%);
+        }
+        
+        .hamburger {
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger.active .line:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        
+        .hamburger.active .line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger.active .line:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+        
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 50;
+        }
+        
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .overlay {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .study-btn {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .study-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-item {
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            transform: translateX(4px);
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .accent-1 {
+            background-color: var(--accent-1);
+        }
+        
+        .accent-2 {
+            background-color: var(--accent-2);
+        }
+        
+        .accent-3 {
+            background-color: var(--accent-3);
+        }
+        
+        .accent-4 {
+            background-color: var(--accent-4);
+        }
+        
+        .bg-primary {
+            background-color: var(--bg-primary);
+        }
+        
+        .bg-secondary {
+            background-color: var(--bg-secondary);
+        }
+        
+        .text-primary {
+            color: var(--text-primary);
+        }
+        
+        .text-secondary {
+            color: var(--text-secondary);
+        }
+        
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="grid-bg">
+    <!-- Header -->
+    <header class="bg-secondary sticky top-0 z-40 shadow-md">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <!-- Hamburger Menu -->
+                <button id="menu-toggle" class="hamburger flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-gray-700 transition">
+                    <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
+                    <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
+                    <span class="line block w-6 h-0.5 bg-white transition"></span>
+                </button>
+                
+                <!-- Logo -->
+                <h1 class="text-xl font-bold">
+                    <span class="text-accent-1">Study</span><span class="text-accent-2">Track</span>
+                </h1>
+            </div>
+            
+            <!-- Study Button -->
+            <button id="study-btn" class="study-btn bg-gradient-to-r from-accent-1 to-accent-2 text-white px-4 py-2 rounded-full font-medium flex items-center">
+                <i class="fas fa-play mr-2"></i>
+                <span>Start Studying</span>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar fixed top-0 left-0 h-full w-64 bg-secondary shadow-lg">
+        <div class="p-4 h-full flex flex-col">
+            <!-- User Profile -->
+            <div class="flex items-center space-x-3 mb-8 p-3 rounded-lg bg-gray-800">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-accent-3 to-accent-4 flex items-center justify-center">
+                    <span class="font-bold">JS</span>
+                </div>
+                <div>
+                    <p class="font-medium">John Student</p>
+                    <p class="text-xs text-secondary">Computer Science</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Items -->
+            <nav class="flex-1">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="nav-item flex items-center space-x-3 p-3 rounded-lg bg-gray-800">
+                            <i class="fas fa-home w-5 text-accent-1"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center space-x-3 p-3 rounded-lg">
+                            <i class="fas fa-calendar-alt w-5 text-accent-2"></i>
+                            <span>Calendar</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center space-x-3 p-3 rounded-lg">
+                            <i class="fas fa-chart-line w-5 text-accent-3"></i>
+                            <span>Statistics</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center space-x-3 p-3 rounded-lg">
+                            <i class="fas fa-stopwatch w-5 text-accent-4"></i>
+                            <span>Timer</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center space-x-3 p-3 rounded-lg">
+                            <i class="fas fa-users w-5 text-accent-1"></i>
+                            <span>Friends</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center space-x-3 p-3 rounded-lg">
+                            <i class="fas fa-trophy w-5 text-accent-2"></i>
+                            <span>Competitions</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-item flex items-center space-x-3 p-3 rounded-lg">
+                            <i class="fas fa-cog w-5 text-secondary"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <!-- Footer -->
+            <div class="pt-4 border-t border-gray-700">
+                <p class="text-xs text-secondary text-center">StudyTrack v1.0</p>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Overlay -->
+    <div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-30"></div>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-6 transition-all duration-300">
+        <!-- Today's Stats -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Today's Progress</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="card bg-secondary p-4 rounded-xl border-l-4 border-accent-1">
+                    <p class="text-secondary text-sm">Hours Studied</p>
+                    <p class="text-2xl font-bold">3.5 <span class="text-sm font-normal text-secondary">hours</span></p>
+                </div>
+                <div class="card bg-secondary p-4 rounded-xl border-l-4 border-accent-2">
+                    <p class="text-secondary text-sm">Sessions</p>
+                    <p class="text-2xl font-bold">2 <span class="text-sm font-normal text-secondary">sessions</span></p>
+                </div>
+                <div class="card bg-secondary p-4 rounded-xl border-l-4 border-accent-3">
+                    <p class="text-secondary text-sm">Focus Rate</p>
+                    <p class="text-2xl font-bold">82<span class="text-sm">%</span></p>
+                </div>
+                <div class="card bg-secondary p-4 rounded-xl border-l-4 border-accent-4">
+                    <p class="text-secondary text-sm">Rank</p>
+                    <p class="text-2xl font-bold">#4</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Weekly Chart -->
+        <section class="mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Weekly Progress</h2>
+                <select class="bg-secondary text-primary px-3 py-1 rounded-lg text-sm border border-gray-700">
+                    <option>This Week</option>
+                    <option>Last Week</option>
+                    <option>Last Month</option>
+                </select>
+            </div>
+            <div class="card bg-secondary p-4 rounded-xl h-64">
+                <!-- Chart placeholder -->
+                <div class="flex items-end justify-between h-full">
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-accent-1 rounded-t-md" style="height: 20%;"></div>
+                        <span class="text-xs mt-1 text-secondary">Mon</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-accent-1 rounded-t-md" style="height: 40%;"></div>
+                        <span class="text-xs mt-1 text-secondary">Tue</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-accent-1 rounded-t-md" style="height: 60%;"></div>
+                        <span class="text-xs mt-1 text-secondary">Wed</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-accent-1 rounded-t-md" style="height: 80%;"></div>
+                        <span class="text-xs mt-1 text-secondary">Thu</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-accent-1 rounded-t-md" style="height: 30%;"></div>
+                        <span class="text-xs mt-1 text-secondary">Fri</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-accent-1 rounded-t-md" style="height: 10%;"></div>
+                        <span class="text-xs mt-1 text-secondary">Sat</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 bg-accent-1 rounded-t-md" style="height: 50%;"></div>
+                        <span class="text-xs mt-1 text-secondary">Sun</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Recent Sessions -->
+        <section class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Recent Sessions</h2>
+            <div class="card bg-secondary rounded-xl overflow-hidden">
+                <div class="divide-y divide-gray-700">
+                    <div class="p-4 hover:bg-gray-800 transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">Mathematics</p>
+                                <p class="text-sm text-secondary">Algebra & Calculus</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium">2.5 hours</p>
+                                <p class="text-xs text-secondary">Today, 14:30 - 17:00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 hover:bg-gray-800 transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">Computer Science</p>
+                                <p class="text-sm text-secondary">Data Structures</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium">1.0 hour</p>
+                                <p class="text-xs text-secondary">Today, 09:00 - 10:00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 hover:bg-gray-800 transition">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-medium">Physics</p>
+                                <p class="text-sm text-secondary">Quantum Mechanics</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium">1.5 hours</p>
+                                <p class="text-xs text-secondary">Yesterday, 16:00 - 17:30</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Friends Activity -->
+        <section>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Friends Activity</h2>
+                <button class="text-accent-1 text-sm font-medium">View All</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="card bg-secondary p-4 rounded-xl">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-accent-3 to-accent-4 flex items-center justify-center">
+                            <span class="font-bold">AM</span>
+                        </div>
+                        <div>
+                            <p class="font-medium">Alex Morgan</p>
+                            <p class="text-xs text-secondary">4.2 hours today</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-secondary">Currently studying:</span>
+                        <span class="font-medium">Chemistry</span>
+                    </div>
+                </div>
+                <div class="card bg-secondary p-4 rounded-xl">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-accent-1 to-accent-2 flex items-center justify-center">
+                            <span class="font-bold">SJ</span>
+                        </div>
+                        <div>
+                            <p class="font-medium">Sarah Johnson</p>
+                            <p class="text-xs text-secondary">3.8 hours today</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-secondary">Currently studying:</span>
+                        <span class="font-medium">Literature</span>
+                    </div>
+                </div>
+                <div class="card bg-secondary p-4 rounded-xl">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-accent-2 to-accent-3 flex items-center justify-center">
+                            <span class="font-bold">TW</span>
+                        </div>
+                        <div>
+                            <p class="font-medium">Taylor Wilson</p>
+                            <p class="text-xs text-secondary">2.9 hours today</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-secondary">Currently studying:</span>
+                        <span class="font-medium">History</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Study Modal -->
+    <div id="study-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-70"></div>
+        <div class="relative bg-secondary rounded-xl max-w-md w-full mx-4 p-6">
+            <button id="close-modal" class="absolute top-4 right-4 text-secondary hover:text-primary">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-xl font-bold mb-4">Track Study Session</h2>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Subject</label>
+                <select class="w-full bg-gray-800 text-primary rounded-lg px-3 py-2 border border-gray-700">
+                    <option>Mathematics</option>
+                    <option>Computer Science</option>
+                    <option>Physics</option>
+                    <option>Chemistry</option>
+                    <option>Biology</option>
+                    <option>Literature</option>
+                    <option>History</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Topic (optional)</label>
+                <input type="text" class="w-full bg-gray-800 text-primary rounded-lg px-3 py-2 border border-gray-700" placeholder="e.g. Linear Algebra">
+            </div>
+            
+            <div class="flex space-x-4">
+                <button id="start-study" class="flex-1 bg-gradient-to-r from-accent-1 to-accent-2 text-white px-4 py-2 rounded-lg font-medium">
+                    Start Session
+                </button>
+                <button id="manual-entry" class="flex-1 bg-gray-800 text-primary px-4 py-2 rounded-lg font-medium border border-gray-700">
+                    Manual Entry
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle sidebar
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.getElementById('overlay');
+        
+        menuToggle.addEventListener('click', () => {
+            menuToggle.classList.toggle('active');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+        
+        overlay.addEventListener('click', () => {
+            menuToggle.classList.remove('active');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+        
+        // Study button functionality
+        const studyBtn = document.getElementById('study-btn');
+        const studyModal = document.getElementById('study-modal');
+        const closeModal = document.getElementById('close-modal');
+        
+        studyBtn.addEventListener('click', () => {
+            studyModal.classList.remove('hidden');
+        });
+        
+        closeModal.addEventListener('click', () => {
+            studyModal.classList.add('hidden');
+        });
+        
+        // Track study state
+        let isStudying = false;
+        const startStudyBtn = document.getElementById('start-study');
+        
+        startStudyBtn.addEventListener('click', () => {
+            if (!isStudying) {
+                // Start studying
+                isStudying = true;
+                studyBtn.innerHTML = '<i class="fas fa-stop mr-2"></i><span>Stop Studying</span>';
+                studyBtn.classList.remove('from-accent-1', 'to-accent-2');
+                studyBtn.classList.add('from-accent-3', 'to-accent-4');
+                studyModal.classList.add('hidden');
+                
+                // Show notification
+                showNotification('Study session started!');
+            } else {
+                // Stop studying
+                isStudying = false;
+                studyBtn.innerHTML = '<i class="fas fa-play mr-2"></i><span>Start Studying</span>';
+                studyBtn.classList.remove('from-accent-3', 'to-accent-4');
+                studyBtn.classList.add('from-accent-1', 'to-accent-2');
+                
+                // Show notification
+                showNotification('Study session saved! 2.5 hours recorded.');
+            }
+        });
+        
+        // Manual entry button
+        document.getElementById('manual-entry').addEventListener('click', () => {
+            // In a real app, this would open a form for manual time entry
+            showNotification('Manual entry form would open here');
+            studyModal.classList.add('hidden');
+        });
+        
+        // Simple notification function
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-secondary text-primary px-4 py-2 rounded-lg shadow-lg flex items-center';
+            notification.innerHTML = `
+                <i class="fas fa-check-circle text-accent-2 mr-2"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+        
+        // Card hover effects
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('shadow-lg');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('shadow-lg');
+            });
+        });
+    </script>
+</body>
+</html>
