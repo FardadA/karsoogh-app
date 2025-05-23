@@ -1,4 +1,3 @@
-// server.js
 require('dotenv').config();
 const path    = require('path');
 const express = require('express');
@@ -40,7 +39,7 @@ const requireAuth = (req, res, next) => {
 // مسیرهای احراز هویت و ثبت‌نام
 app.use('/api', authRoutes);   
 // مسیرهای کار با گروه‌ها (همه باید لاگین کرده باشند، درون routes هم می‌توانید ensureAuth بگذارید)
-app.use('/api', groupRoutes);
+app.use('/api', requireAuth, groupRoutes);
 
 // --- بخش Page Routes ---
 // صفحه اصلی

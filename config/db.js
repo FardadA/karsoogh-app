@@ -1,4 +1,3 @@
-// config/db.js
 const { Low }      = require('lowdb');
 const { JSONFile } = require('lowdb/node');
 const path         = require('path');
@@ -24,17 +23,25 @@ const mutex = new Mutex();
 // پوشش دادن خواندن
 db.safeRead = async () => {
   await mutex.runExclusive(async () => {
-    await db.read();
-    db.data = db.data || { users: [], groups: [] };
+    try {
+      await db.read();
+      db.data = db.data || { users: [], groups: [] };
+    } catch (err) {
+      console.error('safeRead error:', err);
+    }
   });
 };
 
 // پوشش دادن نوشتن (اتمیک)
 db.safeWrite = async () => {
   await mutex.runExclusive(async () => {
-    // از write-file-atomic برای جلوگیری از corruption استفاده می‌کنیم
-    const tmp = JSON.stringify(db.data, null, 2);
-    await writeFile(filePath, tmp, { encoding: 'utf-8' });
+    try {
+      // از write-file-atomic برای جلوگیری از corruption استفاده می‌کنیم
+      const tmp = JSON.stringify(db.data, null, 2);
+      await writeFile(filePath, tmp, { encoding: 'utf-8' });
+    } catch (err) {
+      console.error('safeWrite error:', err);
+    }
   });
 };
 
