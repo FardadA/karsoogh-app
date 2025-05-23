@@ -1,6 +1,5 @@
 /**
- * اگر صفحه نیاز به ساخت هدر و سایدبار به‌صورت داینامیک دارد
- * از این تابع استفاده کن (مثلاً در group.html)
+ * ساخت هدر و سایدبار داینامیک (برای صفحات مثل group.html)
  */
 export function renderHeaderAndSidebar() {
   const wrapper = document.getElementById('wrapper');
@@ -11,11 +10,10 @@ export function renderHeaderAndSidebar() {
     <header class="bg-secondary sticky top-0 z-30 shadow-md">
       <div class="container mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-4">
-          <button id="menu-toggle"
-                  class="hamburger flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-gray-700 transition focus:outline-none">
-            <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
-            <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
-            <span class="line block w-6 h-0.5 bg-white transition"></span>
+          <button id="menu-toggle" class="hamburger w-8 h-8 rounded-full hover:bg-gray-700 transition focus:outline-none flex flex-col justify-center items-center">
+            <span class="line w-6 h-0.5 bg-white mb-1.5"></span>
+            <span class="line w-6 h-0.5 bg-white mb-1.5"></span>
+            <span class="line w-6 h-0.5 bg-white"></span>
           </button>
           <h1 class="text-xl font-bold">
             <span class="text-accent-1">Karsoogh</span><span class="text-accent-2">App</span>
@@ -25,13 +23,10 @@ export function renderHeaderAndSidebar() {
     </header>
 
     <!-- Sidebar -->
-    <aside id="sidebar"
-           class="sidebar fixed top-0 left-0 h-full w-64 bg-secondary shadow-lg transform -translate-x-full transition-transform duration-300 z-50">
+    <aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-secondary shadow-lg transform -translate-x-full transition-transform duration-300 z-50">
       <div class="p-4 h-full flex flex-col">
-        <div id="user-profile"
-             class="flex items-center space-x-3 mb-8 p-3 rounded-lg bg-gray-800">
-          <div id="user-avatar"
-               class="w-10 h-10 rounded-full bg-gradient-to-r from-accent-1 to-accent-2 flex items-center justify-center">
+        <div id="user-profile" class="flex items-center space-x-3 mb-8 p-3 rounded-lg bg-gray-800">
+          <div id="user-avatar" class="w-10 h-10 rounded-full bg-gradient-to-r from-accent-1 to-accent-2 flex items-center justify-center">
             <span id="user-initials" class="font-bold text-sm"></span>
           </div>
           <div>
@@ -55,31 +50,14 @@ export function renderHeaderAndSidebar() {
     </aside>
 
     <!-- Overlay -->
-    <div id="overlay"
-         class="overlay fixed inset-0 bg-black bg-opacity-50 opacity-0 invisible transition-opacity duration-300 z-40"></div>
+    <div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 opacity-0 invisible transition-opacity duration-300 z-40"></div>
   `;
 
   initMenuEvents();
 }
 
 /**
- * در صفحات معمولی (مثل index.html) منطق کلیک را فعال می‌کند
- */
-document.addEventListener('DOMContentLoaded', () => {
-  initMenuEvents();
-
-  // اگر اطلاعات کاربر موجود بود، نمایش بده (اینجا تستی هست)
-  const profileNameEl  = document.getElementById('profile-name');
-  const userInitialsEl = document.getElementById('user-initials');
-  if (profileNameEl && userInitialsEl) {
-    const user = { firstName: 'علی', lastName: 'رضایی' };
-    profileNameEl.textContent = `${user.firstName} ${user.lastName}`;
-    userInitialsEl.textContent = (user.firstName[0] + user.lastName[0]).toUpperCase();
-  }
-});
-
-/**
- * اتصال event ها به همبرگر منو و اورلی
+ * مدیریت تعامل با همبرگر منو و اورلی
  */
 function initMenuEvents() {
   const toggleBtn = document.getElementById('menu-toggle');
@@ -100,3 +78,20 @@ function initMenuEvents() {
     overlay.classList.remove('open');
   });
 }
+
+/**
+ * مقداردهی اولیه در صفحات مستقل
+ */
+document.addEventListener('DOMContentLoaded', () => {
+  initMenuEvents();
+
+  const profileNameEl  = document.getElementById('profile-name');
+  const userInitialsEl = document.getElementById('user-initials');
+
+  // داده تستی برای نمایش در صفحات جداگانه
+  if (profileNameEl && userInitialsEl) {
+    const user = { firstName: 'علی', lastName: 'رضایی' };
+    profileNameEl.textContent = `${user.firstName} ${user.lastName}`;
+    userInitialsEl.textContent = (user.firstName[0] + user.lastName[0]).toUpperCase();
+  }
+});

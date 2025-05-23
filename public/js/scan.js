@@ -1,11 +1,15 @@
-// scan.js
 export function renderScan() {
-  const el = document.createElement('section');
-  el.id = 'scan';
-  el.className = 'section';
-  el.innerHTML = `
-    <h2>بخش اسکن اطلاعات</h2>
-    <!-- اینجا بعداً فرم یا نتیجه اسکن قرار می‌گیرد -->
+  const section = document.createElement('section');
+  section.id = 'scan';
+  section.className = 'section';
+
+  section.innerHTML = `
+    <h2 class="text-2xl font-semibold mb-4">بخش اسکن اطلاعات</h2>
+    <div id="scan-content" class="bg-secondary p-4 rounded shadow">
+      <!-- اینجا فرم یا نتیجه اسکن قرار می‌گیرد -->
+      <p class="text-sm text-gray-400">در حال حاضر محتوایی وجود ندارد.</p>
+    </div>
   `;
-  return el;
+
+  return section;
 }

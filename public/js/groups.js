@@ -1,4 +1,3 @@
-// public/js/groups.js
 export function renderGroups() {
   const section = document.createElement('section');
   section.id = 'groups';
@@ -13,6 +12,7 @@ export function renderGroups() {
     </div>
     <input id="search-input" type="text" placeholder="جستجوی گروه…" 
            class="w-full mb-4 p-2 rounded border border-gray-600 bg-secondary text-primary" />
+    <div id="status-msg" class="mb-4 text-sm text-red-500 hidden"></div>
     <div class="overflow-x-auto">
       <table class="min-w-full table-auto text-left">
         <thead>
@@ -39,6 +39,7 @@ export function renderGroups() {
           <button id="modal-cancel" class="px-4 py-2 rounded hover:bg-gray-700 transition">انصراف</button>
           <button id="modal-save" class="px-4 py-2 bg-accent-2 rounded hover:bg-green-400 transition">ثبت</button>
         </div>
+        <div id="modal-error" class="text-sm text-red-500 mt-2 hidden"></div>
       </div>
     </div>
   `;
@@ -51,9 +52,23 @@ export function renderGroups() {
   const scoreInput  = section.querySelector('#modal-score');
   const cancelBtn   = section.querySelector('#modal-cancel');
   const saveBtn     = section.querySelector('#modal-save');
+  const statusBox   = section.querySelector('#status-msg');
+  const modalError  = section.querySelector('#modal-error');
 
-  // بارگذاری و نمایش گروه‌ها
+  function showStatus(msg = '', isError = true) {
+    statusBox.textContent = msg;
+    statusBox.classList.toggle('hidden', !msg);
+    statusBox.classList.toggle('text-red-500', isError);
+    statusBox.classList.toggle('text-green-500', !isError);
+  }
+
+  function showModalError(msg = '') {
+    modalError.textContent = msg;
+    modalError.classList.toggle('hidden', !msg);
+  }
+
   async function loadAndRender(filter = '') {
+    showStatus('در حال بارگذاری...', false);
     try {
       const res = await fetch('/api/groups');
       if (!res.ok) {
@@ -61,9 +76,8 @@ export function renderGroups() {
         throw new Error(`HTTP ${res.status}: ${text}`);
       }
       const groups = await res.json();
-      if (!Array.isArray(groups)) {
-        throw new Error('Invalid JSON: expected array');
-      }
+      if (!Array.isArray(groups)) throw new Error('Invalid JSON: expected array');
+
       tbody.innerHTML = '';
       groups
         .filter(g => g.name.includes(filter))
@@ -79,53 +93,63 @@ export function renderGroups() {
           });
           tbody.appendChild(tr);
         });
+
+      showStatus('', false);
     } catch (err) {
       console.error('loadAndRender error:', err);
+      showStatus('خطا در بارگذاری لیست گروه‌ها', true);
     }
   }
 
-  // فیلتر جستجو
-  searchInput.addEventListener('input', e => {
+  searchInput?.addEventListener('input', e => {
     loadAndRender(e.target.value.trim());
   });
 
-  // باز/بسته کردن مودال
-  addBtn.addEventListener('click', () => {
+  addBtn?.addEventListener('click', () => {
     nameInput.value = '';
     scoreInput.value = '';
+    showModalError('');
     modal.classList.remove('hidden');
     nameInput.focus();
   });
-  cancelBtn.addEventListener('click', () => {
+
+  cancelBtn?.addEventListener('click', () => {
     modal.classList.add('hidden');
   });
 
-  // ذخیره گروه جدید
-  saveBtn.addEventListener('click', async () => {
+  saveBtn?.addEventListener('click', async () => {
     const name  = nameInput.value.trim();
     const score = scoreInput.value.trim();
     if (!name) {
-      alert('نام گروه الزامی است');
+      showModalError('نام گروه الزامی است');
       return;
     }
+
+    saveBtn.disabled = true;
+    showModalError('در حال ثبت...');
+
     try {
       const res = await fetch('/api/groups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, score: score || 0 })
       });
+
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`HTTP ${res.status}: ${text}`);
       }
+
       modal.classList.add('hidden');
       loadAndRender(searchInput.value.trim());
     } catch (err) {
       console.error('Error saving group:', err);
+      showModalError('ثبت گروه انجام نشد. لطفاً دوباره تلاش کنید.');
+    } finally {
+      saveBtn.disabled = false;
     }
   });
 
-  // بارگذاری اولیه
   loadAndRender();
 
   return section;
