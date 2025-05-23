@@ -316,26 +316,54 @@ a:hover {
   background: rgba(252,165,165,0.2);
 }
 
+
 /* ========================================
    Main Content & Sections
    ======================================== */
+
+/* مطمئن می‌شویم container قابلیت relative positioning داشته باشد */
+#main-content {
+  position: relative;
+  /* overflow: hidden; */
+}
+
+/* padding و transition قبلی برای .content همین‌جا بماند */
 .content {
   padding: 1rem;
   transition: margin-left 0.3s ease;
 }
 
+/* همه سکشن‌ها را روی هم قرار می‌دهیم و به جای display از visibility و opacity استفاده می‌کنیم */
 .section {
-  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  /* از این دو برای انیمیشن مخفی/نمایش استفاده می‌کنیم */
   opacity: 0;
+  visibility: hidden;
+
+  height: 100%;
+  overflow-y: auto;
+
   transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0s linear 0.4s;
+
+  /* غیر قابل کلیک تا وقتی مخفی است */
+  pointer-events: none;
 }
 
+/* وقتی کلاس active اضافه می‌شود، ظاهر می‌گردد */
 .section.active {
-  display: block;
+  position: relative;      /* <-- اضافه */
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 0s;
 }
+
 
 /* ========================================
    Accessibility Focus States
