@@ -2,7 +2,7 @@
 export function renderScan() {
   const section = document.createElement('section');
   section.id = 'scan';
-  section.className = 'section flex justify-center items-start';
+  section.className = 'section flex justify-center items-start min-h-screen py-8';
 
   section.innerHTML = `
     <div class="container mx-auto text-center">

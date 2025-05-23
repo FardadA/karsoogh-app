@@ -1,9 +1,8 @@
-// public/js/main.js
 import { renderDashboard } from './dashboard.js';
 import { renderGroups }    from './groups.js';
 import { renderScan }      from './scan.js';
 
-// main elements
+// المان‌های اصلی
 const main           = document.getElementById('main-content');
 const toggleBtn      = document.getElementById('menu-toggle');
 const sidebar        = document.getElementById('sidebar');
@@ -14,7 +13,7 @@ const profileNameEl  = document.getElementById('profile-name');
 const userInitialsEl = document.getElementById('user-initials');
 
 /**
- * Load user info from server
+ * بارگذاری اطلاعات کاربر از سرور
  */
 async function loadUser() {
   try {
@@ -23,17 +22,17 @@ async function loadUser() {
     const data = await res.json();
     const { firstName = '', lastName = '' } = data?.user || {};
 
-    profileNameEl.textContent = `${firstName} ${lastName}`.trim() || 'User';
+    profileNameEl.textContent = `${firstName} ${lastName}`.trim() || 'کاربر';
     userInitialsEl.textContent = ((firstName[0] || '') + (lastName[0] || '')).toUpperCase();
   } catch (err) {
-    console.error('Error loading user info:', err);
-    profileNameEl.textContent = 'User';
+    console.error('خطا در بارگذاری اطلاعات کاربر:', err);
+    profileNameEl.textContent = 'کاربر';
     userInitialsEl.textContent = '';
   }
 }
 
 /**
- * Open/close sidebar
+ * مدیریت باز/بسته شدن سایدبار
  */
 function openSidebar() {
   sidebar?.classList.add('open');
@@ -58,7 +57,7 @@ main?.addEventListener('click', e => {
 });
 
 /**
- * Render and switch sections
+ * رندر و سویچ بخش‌ها
  */
 const sections = {
   dashboard: renderDashboard(),
@@ -96,13 +95,13 @@ navItems.forEach(item => {
 });
 
 /**
- * Logout logic
+ * منطق خروج از حساب
  */
 logoutBtn?.addEventListener('click', () => {
   window.location.href = '/logout';
 });
 
-// initialize
+// مقداردهی اولیه
 loadUser();
 const urlParams = new URLSearchParams(window.location.search);
 const initialSection = urlParams.get('section') || localStorage.getItem('activeSection') || 'dashboard';
