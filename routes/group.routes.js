@@ -1,4 +1,3 @@
-// routes/group.routes.js
 const express = require('express');
 const {
   getGroups,
@@ -6,7 +5,10 @@ const {
   getGroupById,
   updateGroup
 } = require('../controllers/groupController');
+const ensureAuth = require('../middlewares/auth.middleware');
 const router = express.Router();
+
+router.use(ensureAuth);
 
 router.get('/groups',    getGroups);
 router.post('/groups',   createGroup);
