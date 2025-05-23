@@ -1,25 +1,28 @@
-<!-- group.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Edit Group</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-primary text-primary min-h-screen overflow-x-hidden">
-  <!-- header & sidebar (same as index.html) -->
+  <!-- header & sidebar -->
   <div id="wrapper"></div>
 
-  <!-- content -->
+  <!-- main content -->
   <main class="flex justify-center items-start container mx-auto px-4 py-6 pt-16">
     <div class="w-full max-w-lg bg-secondary p-6 rounded-lg shadow-md text-center">
-      <button id="back-btn" class="flex items-center justify-center mb-6 hover:text-accent-1 transition mx-auto">
+      <button id="back-btn"
+              class="flex items-center justify-center mb-6 hover:text-accent-1 transition mx-auto">
         <i class="fas fa-arrow-left ml-2"></i> Back to Groups List
       </button>
       <h2 class="text-2xl font-semibold mb-6">Edit Group</h2>
+
       <div class="mb-4 text-left">
         <label class="block mb-1">Group Name:</label>
         <input id="edit-name" type="text"
@@ -34,10 +37,79 @@
               class="px-6 py-2 bg-accent-2 rounded hover:bg-green-400 transition">
         Save Changes
       </button>
+
+      <hr class="my-6">
+
+      <div class="students-section text-left">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-lg font-medium">Members</h3>
+          <button id="add-student-btn"
+                  class="text-xl hover:text-accent-1 transition"
+                  title="Add Student">＋</button>
+        </div>
+        <table id="students-table" class="w-full border border-gray-600">
+          <thead>
+            <tr><th class="p-2 border-b">Name</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </main>
 
-  <script type="module" src="js/groupDetail.js"></script>
+  <!-- student modal -->
+  <div id="student-modal"
+       class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-secondary p-6 rounded-lg shadow-lg w-11/12 max-w-md relative">
+      <button id="close-modal" class="absolute top-3 right-3 text-xl">&times;</button>
+
+      <div id="qr-container" class="mb-4">
+        <div id="qr-reader" class="w-64 h-64 mx-auto"></div>
+        <p id="qr-status" class="text-center mt-2"></p>
+        <button id="reset-scan-btn"
+                class="mt-2 ml-auto block px-4 py-2 border rounded hidden">
+          Rescan
+        </button>
+      </div>
+
+      <form id="student-form" class="space-y-4">
+        <input type="hidden" id="qrIdentifier" required>
+        <input type="hidden" id="groupId">
+
+        <div>
+          <label class="block mb-1" for="firstName">First Name:</label>
+          <input id="firstName" name="firstName" required
+                 class="w-full p-2 rounded bg-secondary text-primary border border-gray-600" />
+        </div>
+        <div>
+          <label class="block mb-1" for="lastName">Last Name:</label>
+          <input id="lastName" name="lastName" required
+                 class="w-full p-2 rounded bg-secondary text-primary border border-gray-600" />
+        </div>
+        <div>
+          <label class="block mb-1" for="gender">Gender:</label>
+          <select id="gender" name="gender" required
+                  class="w-full p-2 rounded bg-secondary text-primary border border-gray-600">
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+
+        <div class="flex justify-end space-x-2">
+          <button type="button" id="cancel-btn"
+                  class="px-4 py-2 border rounded">Cancel</button>
+          <button type="submit"
+                  class="px-4 py-2 bg-accent-2 rounded hover:bg-green-400 transition">
+            Add Student
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- scripts -->
   <script type="module" src="js/menu.js"></script>
+  <script type="module" src="js/groupDetail.js"></script>
 </body>
 </html>
