@@ -52,9 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, score: score || 0 })
       });
-
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
       window.location.href = '/?section=groups';
     } catch (err) {
       console.error('saveGroup error:', err);
@@ -68,22 +66,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     statusBox.textContent = msg;
     statusBox.className = '';
     statusBox.classList.add('mt-2', 'text-sm', 'text-center');
-    if (type === 'error') {
-      statusBox.classList.add('text-red-600');
-    } else {
-      statusBox.classList.add('text-gray-600');
-    }
+    if (type === 'error') statusBox.classList.add('text-red-600');
+    else                  statusBox.classList.add('text-gray-600');
   }
 
   loadGroup();
 
   // ============================
-  // Student section starts here
+  // Student / QR Scanner Section
   // ============================
   const studentsTableBody = document.querySelector('#students-table tbody');
   const addBtn            = document.getElementById('add-student-btn');
   const modal             = document.getElementById('student-modal');
-  const closeModal        = document.getElementById('close-modal');
+  const closeModalBtn     = document.getElementById('close-modal');
   const cancelBtn         = document.getElementById('cancel-btn');
   const qrReaderElem      = document.getElementById('qr-reader');
   const qrStatus          = document.getElementById('qr-status');
@@ -91,7 +86,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const qrInput           = document.getElementById('qrIdentifier');
   const hiddenGroupInput  = document.getElementById('groupId');
   const form              = document.getElementById('student-form');
-  let html5QrCode, lastResult = '';
+  const formError         = document.getElementById('form-error');
+  let html5QrCode = null;
+  let lastResult  = '';
+  let overlayEl   = null;
 
   async function loadStudents() {
     try {
@@ -110,86 +108,153 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   addBtn.addEventListener('click', () => {
+    if (formError) formError.textContent = '';
     hiddenGroupInput.value = groupId;
+    form.reset();
+    qrStatus.textContent = '';
+    resetScanBtn.classList.add('hidden');
+    lastResult = '';
+
+    // enforce square mask
+    qrReaderElem.style.width   = '250px';
+    qrReaderElem.style.height  = '250px';
+    qrReaderElem.style.overflow = 'hidden';
+    qrReaderElem.style.position = 'relative';
+
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     startScanner();
   });
 
-  closeModal.addEventListener('click', closeModalFn);
-  cancelBtn.addEventListener('click', closeModalFn);
-
-  function closeModalFn() {
+  async function closeModalFn() {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
-    stopScanner();
-    form.reset();
-    qrStatus.textContent = '';
-    resetScanBtn.classList.add('hidden');
-    lastResult = '';
+    await stopScanner();
+    removeOverlay();
   }
+  closeModalBtn.addEventListener('click', closeModalFn);
+  cancelBtn.addEventListener('click', closeModalFn);
 
   async function startScanner() {
     try {
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const isSecure = window.isSecureContext;
-
-      if (!isSecure && !isLocalhost) {
+      const isLocalhost = ['localhost','127.0.0.1'].includes(window.location.hostname);
+      if (!window.isSecureContext && !isLocalhost) {
         throw new Error('Camera access requires HTTPS or localhost.');
       }
 
-      await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      // prefer wide camera: try constraint; fallback to default
+      try {
+        await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 } }
+        });
+      } catch {
+        await navigator.mediaDevices.getUserMedia({ video: true });
+      }
 
       if (typeof Html5Qrcode === 'undefined') {
-        throw new Error('Html5Qrcode library not found. Make sure <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script> is included before this module.');
+        throw new Error('Html5Qrcode library not found.');
       }
 
       if (html5QrCode) {
-        await html5QrCode.stop().catch(() => {});
-        html5QrCode.clear().catch(() => {});
+        await stopScanner();
       }
 
       html5QrCode = new Html5Qrcode('qr-reader');
       await html5QrCode.start(
         { facingMode: 'environment' },
         { fps: 10, qrbox: 250 },
-        decodedText => {
-          lastResult = decodedText;
-          qrInput.value = decodedText;
-          html5QrCode.stop().then(() => {
-            qrStatus.textContent = `QR scanned: ${decodedText}`;
-            resetScanBtn.classList.remove('hidden');
-          });
-        },
-        errorMessage => {
-          // optional: handle scanning errors here
-        }
+        onScanSuccess,
+        () => {}
       );
     } catch (err) {
-      console.error('Error accessing camera or starting scanner:', err);
-      qrStatus.textContent = 'Cannot access camera. Ensure you are using HTTPS or localhost, and grant permission.';
+      console.error('Scanner error:', err);
+      qrStatus.textContent = err.message;
     }
   }
 
-  function stopScanner() {
+  // Called when a QR is successfully decoded
+  async function onScanSuccess(decodedText) {
+    lastResult = decodedText;
+    qrInput.value = decodedText;
+    qrStatus.textContent = `QR scanned: ${decodedText}`;
+    resetScanBtn.classList.remove('hidden');
+
+    // stop & pause video, but do not clear element
     if (html5QrCode) {
-      html5QrCode.stop().catch(() => {});
-      html5QrCode.clear().catch(() => {});
+      try { await html5QrCode.stop(); } catch {}
+    }
+    // pause underlying video element
+    const vid = qrReaderElem.querySelector('video');
+    if (vid) vid.pause();
+
+    // add blur filter
+    qrReaderElem.style.filter = 'blur(4px)';
+
+    // add overlay prompt
+    addOverlay();
+  }
+
+  // stopScanner: full stop & clear
+  async function stopScanner() {
+    if (!html5QrCode) return;
+    try { await html5QrCode.stop(); } catch (e) { console.warn(e); }
+    try { html5QrCode.clear(); } catch (e) { console.warn(e); }
+    html5QrCode = null;
+    removeOverlay();
+    qrReaderElem.style.filter = '';
+  }
+
+  // create and show overlay with "Tap to rescan"
+  function addOverlay() {
+    removeOverlay();
+    overlayEl = document.createElement('div');
+    Object.assign(overlayEl.style, {
+      position: 'absolute',
+      top: '0', left: '0',
+      width: '100%', height: '100%',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      color: '#fff',
+      background: 'rgba(0,0,0,0.4)',
+      fontSize: '16px',
+      cursor: 'pointer',
+      userSelect: 'none'
+    });
+    overlayEl.innerText = 'Tap to rescan';
+    qrReaderElem.appendChild(overlayEl);
+    overlayEl.addEventListener('click', () => {
+      // on tap, remove filter & overlay, reset state and restart
+      qrReaderElem.style.filter = '';
+      lastResult = '';
+      qrInput.value = '';
+      qrStatus.textContent = '';
+      resetScanBtn.classList.add('hidden');
+      stopScanner().then(startScanner);
+    });
+  }
+
+  function removeOverlay() {
+    if (overlayEl && overlayEl.parentNode) {
+      overlayEl.parentNode.removeChild(overlayEl);
+      overlayEl = null;
     }
   }
 
   resetScanBtn.addEventListener('click', () => {
     qrStatus.textContent = '';
     resetScanBtn.classList.add('hidden');
-    qrInput.value = '';
     lastResult = '';
-    startScanner();
+    qrInput.value = '';
+    stopScanner().then(startScanner);
   });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (formError) formError.textContent = '';
+
     if (!lastResult) {
-      alert('Please scan the QR code first.');
+      if (formError) formError.textContent = 'Please scan the QR code first.';
       return;
     }
     const payload = {
@@ -204,12 +269,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || `HTTP ${res.status}`);
+      }
       await loadStudents();
-      closeModalFn();
+      await closeModalFn();
     } catch (err) {
       console.error('Error creating student:', err);
-      alert('Registration failed. Please try again.');
+      if (formError) formError.textContent = err.message;
+      else alert(err.message);
     }
   });
 
