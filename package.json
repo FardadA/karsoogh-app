@@ -1,0 +1,27 @@
+{
+  "name": "karsoogh-app",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "async-mutex": "^0.5.0",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.5.0",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "lowdb": "^5.1.0",
+    "nanoid": "^5.1.5",
+    "node-cron": "^4.0.6",
+    "nodemailer": "^6.10.1",
+    "sequelize": "^6.37.7",
+    "socket.io": "^4.8.1",
+    "sqlite3": "^5.1.7",
+    "write-file-atomic": "^6.0.0"
+  },
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

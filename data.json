@@ -1,0 +1,78 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "firstName": "فرداد",
+      "lastName": "عرب",
+      "phone": "09912807001",
+      "email": "fardadgoodboy@gmail.com",
+      "passwordHash": "$2b$12$m.mezXK3sCSrdIllVjvl8OVV6HsiMllvYVmy3hjtOKKkqAL7AoCmi",
+      "isVerified": true,
+      "friendCode": "RZDUVYI5",
+      "active": true,
+      "createdAt": 1747939438923
+    },
+    {
+      "id": 2,
+      "firstName": "mir",
+      "lastName": "mammad",
+      "phone": "09331375759",
+      "email": "01amirmkiani@gmail.com",
+      "passwordHash": "$2b$12$pnjlgbaUyZlgx3ZYKkoVuOsJ/o67JE8.iSlb5mtjaoyBMenPX8.4y",
+      "isVerified": true,
+      "friendCode": "6MPV6LKL",
+      "active": true,
+      "createdAt": 1747946586973
+    },
+    {
+      "id": 3,
+      "firstName": "مهدی",
+      "lastName": "بشیری",
+      "phone": "09123456789",
+      "email": "fardadgodboy@gmail.com",
+      "passwordHash": "$2b$12$WykttDJBy7s8S8xJwLFRheRkHqbjQJZWZ1wMXdTpTn.BCKCOIp3my",
+      "isVerified": true,
+      "friendCode": "59AKK04A",
+      "active": true,
+      "createdAt": 1747988071197
+    }
+  ],
+  "groups": [
+    {
+      "id": "C7llad5J5CVLWYKp",
+      "name": "رادیکال",
+      "score": 200,
+      "members": []
+    },
+    {
+      "id": "eG6ALcWRLkfx0KyP",
+      "name": "بیو بیو",
+      "score": 3099,
+      "members": []
+    },
+    {
+      "id": "3lg76APG1ZLYeBVn",
+      "name": "گروه جدید",
+      "score": 10000,
+      "members": []
+    },
+    {
+      "id": "KzlczFDpggMOpCnO",
+      "name": "عاعا",
+      "score": 5000,
+      "members": []
+    },
+    {
+      "id": "p5JqWf4RuT1dLtwl",
+      "name": "نیو",
+      "score": 40,
+      "members": []
+    },
+    {
+      "id": "sSlmL0XugoBnUi9K",
+      "name": "ددد",
+      "score": 0,
+      "members": []
+    }
+  ]
+}
