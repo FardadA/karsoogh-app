@@ -1,3 +1,4 @@
+<!-- public/group.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,7 +96,7 @@
             <option value="female">Female</option>
           </select>
         </div>
-
+        <p id="form-error" class="text-red-600 mt-2"></p>
         <div class="flex justify-end space-x-2">
           <button type="button" id="cancel-btn"
                   class="px-4 py-2 border rounded">Cancel</button>
@@ -109,6 +110,9 @@
   </div>
 
   <!-- scripts -->
+  <!-- ۱. کتابخانه‌ی HTML5 QR Code (اضافه‌شده) -->
+    <script src="js/lib/html5-qrcode.min.js"></script>
+
   <script type="module" src="js/menu.js"></script>
   <script type="module" src="js/groupDetail.js"></script>
 </body>
