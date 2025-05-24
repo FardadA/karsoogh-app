@@ -52,9 +52,23 @@ async function updateGroup(req, res) {
   }
 }
 
+async function deleteGroup(req, res) {
+  try {
+    const deleted = await Group.delete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: 'not found' });
+    }
+    return res.sendStatus(204);
+  } catch (err) {
+    console.error('groupController.deleteGroup error:', err);
+    return res.status(500).json({ error: 'Error deleting group' });
+  }
+}
+
 module.exports = {
   getGroups,
   createGroup,
   getGroupById,
-  updateGroup
+  updateGroup,
+  deleteGroup
 };

@@ -120,6 +120,29 @@ class Group {
   }
 
   /**
+   * حذف یک عضو (دانش‌آموز) از گروه
+   * @param {string} id
+   * @param {string} memberId
+   */
+  static async removeMember(id, memberId) {
+    if (!id) throw new Error('Group ID is required');
+    if (!memberId) throw new Error('Member ID is required');
+
+    await db.safeRead();
+    db.data.groups = db.data.groups || [];
+
+    const idx = db.data.groups.findIndex(g => g.id === id);
+    if (idx === -1) throw new Error('Group not found');
+
+    // حذف memberId از آرایه‌ی members
+    db.data.groups[idx].members = (db.data.groups[idx].members || [])
+      .filter(m => m !== memberId);
+
+    await db.safeWrite();
+    return db.data.groups[idx];
+  }
+
+  /**
    * حذف یک گروه
    * @param {string} id
    */
