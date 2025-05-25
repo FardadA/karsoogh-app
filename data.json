@@ -38,42 +38,7 @@
     }
   ],
   "groups": [
-    {
-      "id": "C7llad5J5CVLWYKp",
-      "name": "رادیکال",
-      "score": 200,
-      "members": [
-        "E7prQ0jz"
-      ]
-    },
-    {
-      "id": "eG6ALcWRLkfx0KyP",
-      "name": "بیو بیو",
-      "score": 3099,
-      "members": []
-    },
-    {
-      "id": "gcYBSeZHiFWBCo1d",
-      "name": "bioooo",
-      "score": 1000,
-      "members": []
-    },
-    {
-      "id": "uO2hfoazOgabqnSR",
-      "name": "sss",
-      "score": 1100,
-      "members": []
-    }
   ],
   "students": [
-    {
-      "id": "E7prQ0jz",
-      "qrIdentifier": "jjjk76544568ggtyujnbfgyujnbyu78dda",
-      "groupId": "C7llad5J5CVLWYKp",
-      "gender": "male",
-      "firstName": "دانش اموز",
-      "lastName": "شماره ۱",
-      "createdAt": "2025-05-23T22:08:29.118Z"
-    }
   ]
 }
