@@ -1,5 +1,5 @@
 require('dotenv').config();
-const fs      = require('fs');
+const fs      = require('fs').promises;      // ← Promise-based FS
 const path    = require('path');
 const express = require('express');
 const session = require('express-session');
@@ -79,31 +79,34 @@ app.use(express.static(path.join(__dirname, 'public')));
 // --- Initialization و استارت سرور ---
 (async () => {
   try {
-    // یک‌بار دیتابیس JSON را می‌خوانیم و مقداردهی اولیه می‌کنیم
+    // ۱. دیتابیس JSON را یک‌بار بخوانید و مقداردهی اولیه کنید
     await db.safeRead();
     console.log('✅ JSON database initialized');
 
-    // اگر می‌خواهید HTTPS با گواهی self-signed داشته باشید،
-    // key.pem و cert.pem را در ریشه‌ی پروژه قرار دهید و
-    // متغیر USE_HTTPS=true را در .env تنظیم کنید.
+    // ۲. تعیین HTTPS یا HTTP
     const useHttps = process.env.USE_HTTPS === 'true';
     const port     = process.env.PORT || (useHttps ? 3443 : 3000);
 
     if (useHttps) {
-      // HTTPS Server
-      const sslOptions = {
-        key:  fs.readFileSync(path.join(__dirname, 'key.pem')),
-        cert: fs.readFileSync(path.join(__dirname, 'cert.pem'))
-      };
-      https.createServer(sslOptions, app).listen(port, () => {
-        console.log(`🚀 HTTPS Server running at https://localhost:${port}`);
-      });
+      // --- بارگذاری غیرهم‌زمان گواهی‌ها ---
+      const [key, cert] = await Promise.all([
+        fs.readFile(path.join(__dirname, 'key.pem')),
+        fs.readFile(path.join(__dirname, 'cert.pem'))
+      ]);
+
+      // --- ساخت و اجرای HTTPS Server ---
+      https
+        .createServer({ key, cert }, app)
+        .listen(port, () => {
+          console.log(`🚀 HTTPS Server running at https://localhost:${port}`);
+        });
     } else {
-      // HTTP Server
-      const server = http.createServer(app);
-      server.listen(port, () => {
-        console.log(`🚀 HTTP Server running at http://localhost:${port}`);
-      });
+      // --- ساخت و اجرای HTTP Server ---
+      http
+        .createServer(app)
+        .listen(port, () => {
+          console.log(`🚀 HTTP Server running at http://localhost:${port}`);
+        });
     }
 
   } catch (err) {
