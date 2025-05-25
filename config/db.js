@@ -2,30 +2,14 @@
 const { Low }      = require('lowdb');
 const { JSONFile } = require('lowdb/node');
 const path         = require('path');
-const fs           = require('fs').promises;
+const fs           = require('fs').promises;      // ← Promise-based FS
 const { Mutex }    = require('async-mutex');
 const writeFile    = require('write-file-atomic');
 
-// ← وارد کردن ماژول بک‌آپ که قبلاً ساختیم
-const { backupToDrive } = require('./driveBackup');
-
 const filePath = path.resolve(__dirname, '../data.json');
 
-const mutex   = new Mutex();
-
-// ─── مرحلهٔ ۰: بک‌آپ اولیه در استارت پروژه ───
+// مقداردهی اولیه‌ی غیرهم‌زمان اگر فایل وجود نداشته باشد
 (async () => {
-  try {
-    console.log('⏳ Running initial Drive backup…');
-    await backupToDrive();
-    console.log('✅ Initial Drive backup completed');
-  } catch (err) {
-    console.error('❌ Initial Drive backup failed:', err);
-  }
-})();
-
-// ─── مقداردهی اولیه‌ی غیرهم‌زمان اگر فایل وجود نداشته باشد ───
-;(async () => {
   try {
     await fs.access(filePath);
     // فایل وجود دارد؛ کاری نمی‌کنیم
@@ -44,6 +28,7 @@ const mutex   = new Mutex();
 
 const adapter = new JSONFile(filePath);
 const db      = new Low(adapter);
+const mutex   = new Mutex();
 
 /**
  * safeRead:
@@ -67,18 +52,12 @@ db.safeRead = async () => {
 
 /**
  * safeWrite:
- *  - قبل از هر نوشتن، بک‌آپ می‌گیره
  *  - نوشتن دیتابیس را به‌صورت اتمیک و درون یک mutex انجام می‌دهد
+ *  - از write-file-atomic برای جلوگیری از corruption استفاده می‌کند
  */
 db.safeWrite = async () => {
   await mutex.runExclusive(async () => {
     try {
-      // ─── مرحلهٔ ۱: بک‌آپ قبل از نوشتن ───
-      console.log('⏳ Running pre-write Drive backup…');
-      await backupToDrive();
-      console.log('✅ Pre-write Drive backup completed');
-
-      // ─── مرحلهٔ ۲: نوشتن اصلی ───
       const tmp = JSON.stringify(db.data, null, 2);
       await writeFile(filePath, tmp, { encoding: 'utf-8' });
     } catch (err) {
