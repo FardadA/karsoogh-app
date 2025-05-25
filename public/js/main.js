@@ -65,7 +65,6 @@ const sections = {
   scan:      renderScan()
 };
 
-// append اولیه و پنهان سازی همه سکشن‌ها
 Object.values(sections).forEach(sec => {
   sec.classList.add('section');
   main?.appendChild(sec);
@@ -73,36 +72,22 @@ Object.values(sections).forEach(sec => {
 
 function activateSection(key) {
   if (!sections[key]) return;
-
-  // مخفی کردن تمام سکشن‌ها
-  Object.values(sections).forEach(s => {
-    s.classList.remove('active');
-  });
-
-  // نمایش سکشن فعال
-  sections[key].classList.add('active');
-
-  // هایلایت منو
+  Object.values(sections).forEach(s => s.classList.remove('active'));
   navItems.forEach(i => i.classList.remove('bg-gray-700'));
+
+  sections[key].classList.add('active');
   document
     .querySelector(`#sidebar .nav-item[data-section="${key}"]`)
     ?.classList.add('bg-gray-700');
 
-  // ذخیره در لوکال‌استوریج
   localStorage.setItem('activeSection', key);
-
-  // بستن سایدبار
   closeSidebar();
 
-  // پاک کردن پارامتر URL
   const url = new URL(window.location.href);
   if (url.searchParams.has('section')) {
     url.searchParams.delete('section');
     history.replaceState({}, '', url.toString());
   }
-
-  // اسکرول به بالا
-  window.scrollTo(0, 0);
 }
 
 navItems.forEach(item => {
@@ -118,6 +103,6 @@ logoutBtn?.addEventListener('click', () => {
 
 // مقداردهی اولیه
 loadUser();
-const urlParams       = new URLSearchParams(window.location.search);
-const initialSection  = urlParams.get('section') || localStorage.getItem('activeSection') || 'dashboard';
+const urlParams = new URLSearchParams(window.location.search);
+const initialSection = urlParams.get('section') || localStorage.getItem('activeSection') || 'dashboard';
 activateSection(initialSection);
