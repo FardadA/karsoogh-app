@@ -1,6 +1,6 @@
-// public/js/menu.js
 /**
- * Dynamic header and sidebar (for standalone pages like group.html)
+ * اگر صفحه نیاز به ساخت هدر و سایدبار به‌صورت داینامیک دارد
+ * از این تابع استفاده کن (مثلاً در group.html)
  */
 export function renderHeaderAndSidebar() {
   const wrapper = document.getElementById('wrapper');
@@ -12,10 +12,10 @@ export function renderHeaderAndSidebar() {
       <div class="container mx-auto px-4 py-3 flex items-center justify-between">
         <div class="flex items-center space-x-4">
           <button id="menu-toggle"
-                  class="hamburger w-8 h-8 rounded-full hover:bg-gray-700 transition focus:outline-none flex flex-col justify-center items-center">
-            <span class="line w-6 h-0.5 bg-white mb-1.5"></span>
-            <span class="line w-6 h-0.5 bg-white mb-1.5"></span>
-            <span class="line w-6 h-0.5 bg-white"></span>
+                  class="hamburger flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-gray-700 transition focus:outline-none">
+            <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
+            <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
+            <span class="line block w-6 h-0.5 bg-white transition"></span>
           </button>
           <h1 class="text-xl font-bold">
             <span class="text-accent-1">Karsoogh</span><span class="text-accent-2">App</span>
@@ -36,22 +36,19 @@ export function renderHeaderAndSidebar() {
           </div>
           <div>
             <p id="profile-name" class="font-medium text-sm"></p>
-            <p id="profile-role" class="text-xs text-secondary">Role: User</p>
+            <p id="profile-role" class="text-xs text-secondary">کاربر</p>
           </div>
         </div>
-        <nav class="flex-1 overflow-y-auto text-center">
+        <nav class="flex-1 overflow-y-auto">
           <ul class="space-y-1">
-            <li class="nav-item flex items-center justify-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer">
-              <i class="fas fa-home w-5 text-accent-1"></i>
-              <a href="/" class="block">Home</a>
+            <li class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer">
+              <i class="fas fa-home w-5 text-accent-1"></i><a href="/" class="block">خانه</a>
             </li>
           </ul>
         </nav>
-        <div class="mt-auto text-center">
-          <button id="logout"
-                  class="w-full flex items-center justify-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition">
-            <i class="fas fa-sign-out-alt w-5 text-red-400"></i>
-            <span class="text-red-400">Logout</span>
+        <div class="mt-auto">
+          <button id="logout" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition">
+            <i class="fas fa-sign-out-alt w-5 text-red-400"></i><span class="text-red-400">خروج</span>
           </button>
         </div>
       </div>
@@ -66,7 +63,23 @@ export function renderHeaderAndSidebar() {
 }
 
 /**
- * Handle hamburger menu and overlay interaction
+ * در صفحات معمولی (مثل index.html) منطق کلیک را فعال می‌کند
+ */
+document.addEventListener('DOMContentLoaded', () => {
+  initMenuEvents();
+
+  // اگر اطلاعات کاربر موجود بود، نمایش بده (اینجا تستی هست)
+  const profileNameEl  = document.getElementById('profile-name');
+  const userInitialsEl = document.getElementById('user-initials');
+  if (profileNameEl && userInitialsEl) {
+    const user = { firstName: 'علی', lastName: 'رضایی' };
+    profileNameEl.textContent = `${user.firstName} ${user.lastName}`;
+    userInitialsEl.textContent = (user.firstName[0] + user.lastName[0]).toUpperCase();
+  }
+});
+
+/**
+ * اتصال event ها به همبرگر منو و اورلی
  */
 function initMenuEvents() {
   const toggleBtn = document.getElementById('menu-toggle');
@@ -87,20 +100,3 @@ function initMenuEvents() {
     overlay.classList.remove('open');
   });
 }
-
-/**
- * Initialize for standalone pages
- */
-document.addEventListener('DOMContentLoaded', () => {
-  initMenuEvents();
-
-  const profileNameEl  = document.getElementById('profile-name');
-  const userInitialsEl = document.getElementById('user-initials');
-
-  // Placeholder user data for standalone pages
-  if (profileNameEl && userInitialsEl) {
-    const user = { firstName: 'Ali', lastName: 'Rezaei' };
-    profileNameEl.textContent = `${user.firstName} ${user.lastName}`;
-    userInitialsEl.textContent = (user.firstName[0] + user.lastName[0]).toUpperCase();
-  }
-});

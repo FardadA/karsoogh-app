@@ -1,8 +1,8 @@
 // controllers/authController.js
-const bcrypt                     = require('bcrypt');
-const db                         = require('../config/db');
-const UserModel                  = require('../models/User');
-const { sendVerificationEmail }  = require('../config/email');
+const bcrypt                  = require('bcrypt');
+const db                      = require('../config/db');
+const UserModel               = require('../models/User');
+const { sendVerificationEmail } = require('../config/email');
 
 // STEP 1: فقط بررسی یکتا بودن و ارسال کد
 exports.signupStep1 = async (req, res) => {
@@ -12,8 +12,8 @@ exports.signupStep1 = async (req, res) => {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
-    // خواندن دیتابیس Lowdb با safeRead
-    await db.safeRead();
+    // خواندن دیتابیس Lowdb
+    await db.read();
     const users = db.data.users || [];
 
     // چک تکراری بودن تلفن یا ایمیل
@@ -22,30 +22,23 @@ exports.signupStep1 = async (req, res) => {
       return res.status(400).json({ error: 'Phone or Email already in use.' });
     }
 
-    // یکتاست → تولید کد و هش کردن رمز
+    // یکتاست → تولید کد و ذخیره در سشن
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // ذخیرهٔ اطلاعات pending در سشن
+    // ذخیرهٔ اطلاعات pending در سشن (حاوی plain password برای پر کردن خودکار فرمِ لاگین)
     req.session.pendingSignup = {
       firstName,
       lastName,
       phone,
       email,
       passwordHash,
-      passwordPlain: password,
+      passwordPlain: password,       // **ذخیرهٔ رمز عبور خام**
       verificationCode: code,
       createdAt: Date.now()
     };
 
-    // ارسال ایمیل با هندل خطای جداگانه
-    try {
-      await sendVerificationEmail(email, code);
-    } catch (emailErr) {
-      console.error('sendVerificationEmail error:', emailErr);
-      return res.status(500).json({ error: 'Failed to send verification email.' });
-    }
-
+    await sendVerificationEmail(email, code);
     return res.json({ status: 'code-sent' });
   } catch (err) {
     console.error('signupStep1 error:', err);
@@ -61,20 +54,13 @@ exports.signupStep2 = async (req, res) => {
     if (!pending) {
       return res.status(400).json({ error: 'No pending signup.' });
     }
-
-    // بررسی انقضای کد (۱۰ دقیقه)
-    if (Date.now() - pending.createdAt > 10 * 60 * 1000) {
-      delete req.session.pendingSignup;
-      return res.status(400).json({ error: 'Verification code expired.' });
-    }
-
     // بررسی تطابق کد
     if (pending.verificationCode !== code) {
       return res.status(400).json({ error: 'Invalid code.' });
     }
 
-    // خواندن دیتابیس با safeRead
-    await db.safeRead();
+    // خواندن دیتابیس
+    await db.read();
     db.data.users = db.data.users || [];
 
     // تولید شناسهٔ جدید
@@ -84,7 +70,7 @@ exports.signupStep2 = async (req, res) => {
     // تولید friendCode تصادفی
     const friendCode = Math.random().toString(36).slice(2, 10).toUpperCase();
 
-    // ایجاد کاربر با فیلد active=false
+    // ایجاد کاربر با فیلد active=false (نیاز به فعالسازی دستی از طرف ادمین)
     const newUser = {
       id: newId,
       firstName: pending.firstName,
@@ -94,23 +80,23 @@ exports.signupStep2 = async (req, res) => {
       passwordHash: pending.passwordHash,
       isVerified: true,
       friendCode,
-      active: false,
+      active: false,                  // **فیلد جدید** (غیر فعال)
       createdAt: Date.now()
     };
 
-    // ذخیره در دیتابیس و نوشتن با safeWrite
+    // ذخیره در دیتابیس و نوشتن
     db.data.users.push(newUser);
-    await db.safeWrite();
+    await db.write();
 
     // پاک کردن pendingSignup
-    const phoneOut = pending.phone;
-    const passPlain = pending.passwordPlain;
+    const phone = pending.phone;
+    const passPlain = pending.passwordPlain; // دستیابی به رمز خام برای ارسال به Login
     delete req.session.pendingSignup;
 
-    // ارسال پاسخ pendingActivation
+    // **به جای لاگین مستقیم**: پاسخ بدهد که حساب «فعال نیست» و شماره/رمز را برای پر کردن فرم لاگین اتوماتیک بفرستد
     return res.json({
       status: 'pendingActivation',
-      phone: phoneOut,
+      phone,
       password: passPlain
     });
   } catch (err) {
@@ -127,8 +113,8 @@ exports.login = async (req, res) => {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
-    // خواندن دیتابیس با safeRead
-    await db.safeRead();
+    // خواندن دیتابیس
+    await db.read();
     const users = db.data.users || [];
 
     // پیدا کردن کاربر با شمارهٔ موبایل
@@ -170,8 +156,7 @@ exports.me = async (req, res) => {
       return res.status(401).json({ error: 'Not logged in.' });
     }
 
-    // خواندن دیتابیس با safeRead
-    await db.safeRead();
+    await db.read();
     const users = db.data.users || [];
     const user = users.find(u => u.id === req.session.userId);
     if (!user) {

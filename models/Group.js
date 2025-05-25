@@ -1,7 +1,7 @@
 // models/Group.js
 const { customAlphabet } = require('nanoid');
 const db                  = require('../config/db');
-const nanoid              = customAlphabet(
+const nanoid             = customAlphabet(
   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
   16
 );
@@ -13,8 +13,7 @@ class Group {
   static async findAll() {
     await db.safeRead();
     // همیشه اطمینان می‌دهیم که آرایه‌ی groups موجود است
-    db.data.groups = db.data.groups || [];
-    return db.data.groups;
+    return db.data.groups || [];
   }
 
   /**
@@ -24,8 +23,8 @@ class Group {
   static async findOne(id) {
     if (!id) throw new Error('Group ID is required');
     await db.safeRead();
-    db.data.groups = db.data.groups || [];
-    return db.data.groups.find(g => g.id === id) || null;
+    const groups = db.data.groups || [];
+    return groups.find(g => g.id === id) || null;
   }
 
   /**
@@ -88,51 +87,6 @@ class Group {
 
     await db.safeWrite();
     return db.data.groups[idx];
-  }
-
-  /**
-   * اضافه کردن یک عضو (دانش‌آموز) به گروه
-   * @param {string} id
-   * @param {string} memberId
-   */
-  static async addMember(id, memberId) {
-    if (!id) throw new Error('Group ID is required');
-    if (!memberId) throw new Error('Member ID is required');
-
-    await db.safeRead();
-    db.data.groups = db.data.groups || [];
-
-    const idx = db.data.groups.findIndex(g => g.id === id);
-    if (idx === -1) throw new Error('Group not found');
-
-    // مقداردهی اولیه members اگر لازم باشد
-    if (!Array.isArray(db.data.groups[idx].members)) {
-      db.data.groups[idx].members = [];
-    }
-
-    // جلوگیری از اضافه شدن تکراری
-    if (!db.data.groups[idx].members.includes(memberId)) {
-      db.data.groups[idx].members.push(memberId);
-      await db.safeWrite();
-    }
-
-    return db.data.groups[idx];
-  }
-
-  /**
-   * حذف یک گروه
-   * @param {string} id
-   */
-  static async delete(id) {
-    if (!id) throw new Error('Group ID is required');
-    await db.safeRead();
-    db.data.groups = db.data.groups || [];
-
-    const idx = db.data.groups.findIndex(g => g.id === id);
-    if (idx === -1) throw new Error('Group not found');
-
-    db.data.groups.splice(idx, 1);
-    await db.safeWrite();
   }
 }
 

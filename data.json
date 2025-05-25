@@ -39,11 +39,40 @@
   ],
   "groups": [
     {
-      "id": "oEUCIeXEYYLrQd55",
+      "id": "C7llad5J5CVLWYKp",
+      "name": "رادیکال",
+      "score": 200,
+      "members": []
+    },
+    {
+      "id": "eG6ALcWRLkfx0KyP",
       "name": "بیو بیو",
-      "score": 20,
+      "score": 3099,
+      "members": []
+    },
+    {
+      "id": "3lg76APG1ZLYeBVn",
+      "name": "گروه جدید",
+      "score": 10000,
+      "members": []
+    },
+    {
+      "id": "KzlczFDpggMOpCnO",
+      "name": "عاعا",
+      "score": 5000,
+      "members": []
+    },
+    {
+      "id": "p5JqWf4RuT1dLtwl",
+      "name": "نیو",
+      "score": 40,
+      "members": []
+    },
+    {
+      "id": "sSlmL0XugoBnUi9K",
+      "name": "ددد",
+      "score": 0,
       "members": []
     }
-  ],
-  "students": []
+  ]
 }

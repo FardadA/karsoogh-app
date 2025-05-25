@@ -1,14 +1,18 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Karsoogh App</title>
 
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="bg-primary text-primary min-h-screen overflow-x-hidden">
 
@@ -16,12 +20,14 @@
   <header class="bg-secondary sticky top-0 z-40 shadow-md">
     <div class="container mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center space-x-4">
+        <!-- Hamburger Menu -->
         <button id="menu-toggle"
                 class="hamburger flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-gray-700 transition focus:outline-none">
           <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
           <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
           <span class="line block w-6 h-0.5 bg-white transition"></span>
         </button>
+        <!-- Logo -->
         <h1 class="text-xl font-bold">
           <span class="text-accent-1">Karsoogh</span><span class="text-accent-2">App</span>
         </h1>
@@ -33,6 +39,7 @@
   <aside id="sidebar"
          class="fixed top-0 left-0 h-full w-64 bg-secondary shadow-lg transform -translate-x-full transition-transform duration-300 z-50">
     <div class="p-4 h-full flex flex-col">
+      <!-- User Profile -->
       <div id="user-profile"
            class="flex items-center space-x-3 mb-8 p-3 rounded-lg bg-gray-800">
         <div id="user-avatar"
@@ -40,36 +47,38 @@
           <span id="user-initials" class="font-bold text-sm"></span>
         </div>
         <div>
-          <p id="profile-name" class="font-medium text-sm">User</p>
-          <p id="profile-role" class="text-xs text-secondary">Role: User</p>
+          <p id="profile-name" class="font-medium text-sm">کاربر</p>
+          <p id="profile-role" class="text-xs text-secondary">نقش: کاربر</p>
         </div>
       </div>
 
+      <!-- Navigation -->
       <nav class="flex-1 overflow-y-auto">
         <ul class="space-y-1">
           <li data-section="dashboard"
-              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer text-center justify-center">
+              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer">
             <i class="fas fa-tachometer-alt w-5 text-accent-1"></i>
-            <span>Dashboard</span>
+            <span>داشبورد</span>
           </li>
           <li data-section="groups"
-              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer text-center justify-center">
+              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer">
             <i class="fas fa-users w-5 text-accent-2"></i>
-            <span>Groups</span>
+            <span>گروه‌ها</span>
           </li>
           <li data-section="scan"
-              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer text-center justify-center">
+              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer">
             <i class="fas fa-qrcode w-5 text-accent-4"></i>
-            <span>Scan Info</span>
+            <span>اسکن اطلاعات</span>
           </li>
         </ul>
       </nav>
 
+      <!-- Logout -->
       <div class="mt-auto">
         <button id="logout"
-                class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition text-center justify-center">
+                class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition">
           <i class="fas fa-sign-out-alt w-5 text-red-400"></i>
-          <span class="text-red-400">Logout</span>
+          <span class="text-red-400">خروج</span>
         </button>
       </div>
     </div>
@@ -81,10 +90,11 @@
 
   <!-- Main Content -->
   <main id="main-content"
-        class="container mx-auto px-4 py-6 pt-16 text-center transition-all duration-300">
-    <!-- JS will inject sections here -->
+        class="container mx-auto px-4 py-6 pt-16 transition-all duration-300">
+    <!-- JS اینجا بخش‌ها را اضافه می‌کند -->
   </main>
 
+  <!-- Scripts -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const toggleBtn = document.getElementById('menu-toggle');
