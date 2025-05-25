@@ -39,29 +39,41 @@
   ],
   "groups": [
     {
-      "id": "gWqa2AsZ91JpSEEb",
-      "name": "گروه جدید",
-      "score": 100,
+      "id": "C7llad5J5CVLWYKp",
+      "name": "رادیکال",
+      "score": 200,
       "members": [
-        "3dWW6ZO7"
+        "E7prQ0jz"
       ]
     },
     {
-      "id": "GbOsXJXHSDeqxbX5",
-      "name": "عععع",
-      "score": 2000,
+      "id": "eG6ALcWRLkfx0KyP",
+      "name": "بیو بیو",
+      "score": 3099,
+      "members": []
+    },
+    {
+      "id": "gcYBSeZHiFWBCo1d",
+      "name": "bioooo",
+      "score": 1000,
+      "members": []
+    },
+    {
+      "id": "uO2hfoazOgabqnSR",
+      "name": "sss",
+      "score": 1100,
       "members": []
     }
   ],
   "students": [
     {
-      "id": "3dWW6ZO7",
-      "qrIdentifier": "lklhjhhhhhhhhhhhhhhhhhhhhhhhhknkni",
-      "groupId": "gWqa2AsZ91JpSEEb",
+      "id": "E7prQ0jz",
+      "qrIdentifier": "jjjk76544568ggtyujnbfgyujnbyu78dda",
+      "groupId": "C7llad5J5CVLWYKp",
       "gender": "male",
-      "firstName": "جا",
-      "lastName": "ه",
-      "createdAt": "2025-05-24T09:35:39.442Z"
+      "firstName": "دانش اموز",
+      "lastName": "شماره ۱",
+      "createdAt": "2025-05-23T22:08:29.118Z"
     }
   ]
 }
