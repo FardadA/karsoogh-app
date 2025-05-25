@@ -37,6 +37,31 @@
       "createdAt": 1747988071197
     }
   ],
-  "groups": [],
-  "students": []
+  "groups": [
+    {
+      "id": "gWqa2AsZ91JpSEEb",
+      "name": "گروه جدید",
+      "score": 100,
+      "members": [
+        "3dWW6ZO7"
+      ]
+    },
+    {
+      "id": "GbOsXJXHSDeqxbX5",
+      "name": "عععع",
+      "score": 2000,
+      "members": []
+    }
+  ],
+  "students": [
+    {
+      "id": "3dWW6ZO7",
+      "qrIdentifier": "lklhjhhhhhhhhhhhhhhhhhhhhhhhhknkni",
+      "groupId": "gWqa2AsZ91JpSEEb",
+      "gender": "male",
+      "firstName": "جا",
+      "lastName": "ه",
+      "createdAt": "2025-05-24T09:35:39.442Z"
+    }
+  ]
 }
